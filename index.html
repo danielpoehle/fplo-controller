@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>Fplo Controller</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" crossorigin="anonymous"></script>
+    
+    <script src="https://kit.fontawesome.com/b6b808bbca.js" crossorigin="anonymous"></script>
+    
+    <!-- use the latest version -->
+    <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="./hlp/luxon.min.js"></script>
+    <script src="./hlp/underscore-umd-min.js"></script>
+    <script src="./app.js"></script>        
+  </head>
+  <body ng-app="FploControl" ng-controller="FploController as fploList">
+    <div class="container-fluid">
+        <div class="row">
+          <div class="page-header col-md-10">
+            <i class="fas fa-file-invoice" style="color:#FF0000; font-size: 4em;""></i><b>&nbsp;</b>
+            <b style="color:#767171; font-size: 4em;">&nbsp;Fplo</b>
+            <b style="color:#FF0000; font-size: 4em;"">Controller</b>            
+            <h3>Arbeitssteuerung für Fplo-Frist und Vollständigkeit</h3>
+          </div>          
+          
+          <div class="page-header col-md-2">
+            <img src="./img/Db-netze.png" class="img-fluid" alt="DB Netz AG Logo">         
+          </div>
+
+          <div class="col-md-9 ng-hide animate-show-hide" ng-hide="fploList.loadComplete">
+            <div class="form-group">              
+              <div class="col-md-8"> 
+                  <table>
+                    <tr>
+                        <td>
+                            Kanban-Tabelle
+                          </td>
+                          <td>&nbsp;</td>
+                          <td>
+                            <input type="file" id="tbl" class="form-control" ng-model="zvFList.Filename" accept=".xlsb" placeholder="Export Kanban einlesen">
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                            Vorgänge ABFK
+                          </td>
+                          <td>&nbsp;</td>
+                          <td>
+                            <input type="file" id="list" class="form-control" ng-model="zvFList.Filename" accept=".xlsx" placeholder="Export Vorgänge ABFK einlesen">
+                          </td>
+                      </tr>                      
+                  </table>               
+                 <p></p>
+                <p><b>Achtung</b> Es werden keinerlei Daten ins Netz hochgeladen. Der Verarbeitung der Daten und Erzeugung der Tabellen erfolgt ausschließlich auf dem lokalen Rechner.</p>
+  
+                <button type="button" class="btn btn-secondary" ng-click="fploList.showWork()">
+                    <i class="far fa-file-alt"></i>                    
+                    Daten einlesen und verarbeiten
+                </button>
+              </div>         
+            </div>
+          </div>
+
+          <div class="col-md-11 ng-hide animate-show-hide" ng-show="fploList.loadComplete">              
+              <table>
+                  <tr>
+                      <td>Fahrplanjahr</td>
+                      <td>
+                        <input type="number" id="y" class="form-control form-control-sm" ng-model="fploList.selectedYear">
+                      </td>
+                      <td>Kalenderwoche</td>
+                      <td>
+                        <input type="number" id="w" class="form-control form-control-sm" ng-model="fploList.currentWeek">
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-secondary btn-sm" ng-click="fploList.showWork()">                    
+                            Update
+                        </button>
+                      </td>
+                  </tr>
+              </table>
+
+              <h4>Arbeitstabelle</h4>
+              <div class="accordion accordion-flush" id="accordionFlushExample">
+                <div ng-repeat="tr in fploList.Work | orderBy:['KW']" class="accordion-item">
+                  <h2 class="accordion-header" id="{{tr.KW}}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{'flush' + tr.KW}}" aria-expanded="false" aria-controls="{{'flush' + tr.KW}}">
+                      <b>Frist Kalenderwoche {{tr.KW}}</b>
+                    </button>
+                  </h2>
+                  <div id="{{'flush' + tr.KW}}" class="accordion-collapse collapse" aria-labelledby="{{tr.KW}}" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">Test for KW {{tr.KW}}.</div>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+
+        </div>
+    </div>
+  </body>
+
