@@ -112,9 +112,9 @@
             
           
             /* DO SOMETHING WITH workbook HERE */            
-            console.log(df);
+            //console.log(df);
             fploList.KanBan = df;
-            console.log(Object.keys(fploList.KanBan[0]));
+            //console.log(Object.keys(fploList.KanBan[0]));
           };
              
     };
