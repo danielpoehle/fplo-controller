@@ -18,7 +18,11 @@
     <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="./hlp/luxon.min.js"></script>
     <script src="./hlp/underscore-umd-min.js"></script>
-    <script src="./app.js"></script>        
+    <script src="./app.js"></script>   
+    
+    <style>
+        .ww {min-width: 200px;}
+    </style>
   </head>
   <body ng-app="FploControl" ng-controller="FploController as fploList">
     <div class="container-fluid">
@@ -73,11 +77,11 @@
                   <tr>
                       <td>Fahrplanjahr</td>
                       <td>
-                        <input type="number" id="y" class="form-control form-control-sm" ng-model="fploList.selectedYear">
+                        <input type="number" id="y" class="form-control form-control-sm" ng-model="fploList.selectedYear" min="2000" max="2100">
                       </td>
                       <td>Kalenderwoche</td>
                       <td>
-                        <input type="number" id="w" class="form-control form-control-sm" ng-model="fploList.currentWeek">
+                        <input type="number" id="w" class="form-control form-control-sm" ng-model="fploList.currentWeek" min="1" max="52">
                       </td>
                       <td>
                         <button type="button" class="btn btn-secondary btn-sm" ng-click="fploList.showWork()">                    
@@ -92,11 +96,36 @@
                 <div ng-repeat="tr in fploList.Work | orderBy:['KW']" class="accordion-item">
                   <h2 class="accordion-header" id="{{tr.KW}}">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{'flush' + tr.KW}}" aria-expanded="false" aria-controls="{{'flush' + tr.KW}}">
-                      <b>Frist Kalenderwoche {{tr.KW}}</b>
+                      <b>Frist Kalenderwoche {{tr.KW}}: {{tr.ANZ_MN}} Maßnahmen mit {{tr.SUM_DOK}} Dokumenten</b>
                     </button>
                   </h2>
                   <div id="{{'flush' + tr.KW}}" class="accordion-collapse collapse" aria-labelledby="{{tr.KW}}" data-bs-parent="#accordionFlushExample">
-                    <div class="accordion-body">Test for KW {{tr.KW}}.</div>
+                    <div class="accordion-body">
+                        <table class="table table-sm" ng-repeat="vg in tr.MN | orderBy:['-ANZ_DOK']">
+                            <thead>
+                                <tr ng-class=" vg.OPEN_UB === 0 && vg.OPEN_FPLO === 0 ? 'table-success' : 'table-dark'">
+                                    <th class="ww">Vorgang {{vg.VORGANG}}: {{vg.ANZ_DOK}} Dokumente</th>
+                                    <th class="ww">EVU</th>
+                                    <th class="ww">Bearbeiter*in</th>
+                                    <th class="ww text-center">Summe Trassen ÜB: {{vg.TR_UB}}</th>
+                                    <th class="ww text-center">Offene Trassen ÜB: {{vg.OPEN_UB}}</th>
+                                    <th class="ww text-center">Summe Trassen Fplo: {{vg.TR_FPLO}}</th>
+                                    <th class="ww text-center">Offene Trassen Fplo: {{vg.OPEN_FPLO}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="z in vg.DOK">
+                                    <td>{{z.Vorgang}}</td>
+                                    <td>{{z['EVU Gruppe']}}</td>
+                                    <td ng-class="{'table-danger': (vg.OPEN_UB + vg.OPEN_FPLO > 0) && (z.Staff === 'neu' || z.Staff === 'Kanban fehlt!')}">{{z.Staff}}</td>
+                                    <td class="ww text-center" ng-class="{'table-info': z['Trassen ÜB'] !== z['Fertig ÜB']}">{{z['Trassen ÜB']}}</td>
+                                    <td class="ww text-center" ng-class="{'table-info': z['Trassen ÜB'] !== z['Fertig ÜB']}">{{z['Trassen ÜB'] - z['Fertig ÜB']}}</td>
+                                    <td class="ww text-center" ng-class="{'table-warning': z['Trassen FPLO'] !== z['Fertig FPLO']}">{{z['Trassen FPLO']}}</td>
+                                    <td class="ww text-center" ng-class="{'table-warning': z['Trassen FPLO'] !== z['Fertig FPLO']}">{{z['Trassen FPLO'] - z['Fertig FPLO']}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                   </div>
                 </div>
               </div>
